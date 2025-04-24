@@ -104,10 +104,11 @@ func (ud UserData) fetchStream(ctx *context.StoreContext, r *http.Request, rType
 	allStreams := []WrappedStream{}
 	for i := range chunks {
 		if errs[i] != nil {
-			log.Error("failed to fetch streams", "error", errs[i])
-			continue
+			hostname := upstreams[i].baseUrl.Hostname()
+			log.Error("failed to fetch streams", "error", errs[i], "hostname", hostname)
+		} else {
+			allStreams = append(allStreams, chunks[i]...)
 		}
-		allStreams = append(allStreams, chunks[i]...)
 	}
 
 	if template != nil {
