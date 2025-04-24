@@ -184,6 +184,9 @@ var statusCodeByErrorCode = map[ErrorCode]int{
 	ErrorCodeUnavailableForLegalReasons:  http.StatusUnavailableForLegalReasons,
 	ErrorCodeUnprocessableEntity:         http.StatusUnprocessableEntity,
 	ErrorCodeUnsupportedMediaType:        http.StatusUnsupportedMediaType,
+
+	ErrorCodeStoreMagnetInvalid: http.StatusBadRequest,
+	ErrorCodeStoreNameInvalid:   http.StatusBadRequest,
 }
 
 func (e *Error) Pack(r *http.Request) {

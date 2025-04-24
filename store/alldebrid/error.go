@@ -1,8 +1,6 @@
 package alldebrid
 
 import (
-	"net/http"
-
 	"github.com/MunifTanjim/stremthru/core"
 	"github.com/MunifTanjim/stremthru/store"
 )
@@ -10,106 +8,159 @@ import (
 type ErrorCode = core.ErrorCode
 
 const (
-	ErrorCodeAuthMissingAgent  ErrorCode = "AUTH_MISSING_AGENT"
-	ErrorCodeAuthBadAgent      ErrorCode = "AUTH_BAD_AGENT"
+	ErrorCodeGeneric     ErrorCode = "GENERIC"
+	ErrorCode404         ErrorCode = "404"
+	ErrorCodeMaintenance ErrorCode = "MAINTENANCE"
+
 	ErrorCodeAuthMissingAPIKey ErrorCode = "AUTH_MISSING_APIKEY"
 	ErrorCodeAuthBadAPIKey     ErrorCode = "AUTH_BAD_APIKEY"
 	ErrorCodeAuthBlocked       ErrorCode = "AUTH_BLOCKED"
 	ErrorCodeAuthBanned        ErrorCode = "AUTH_USER_BANNED"
+
+	ErrorCodeAlreadySent ErrorCode = "ALREADY_SENT"
+	ErrorCodeNoServer    ErrorCode = "NO_SERVER"
+
+	ErrorCodeLinkIsMissing            ErrorCode = "LINK_IS_MISSING"
+	ErrorCodeBadLink                  ErrorCode = "BAD_LINK"
+	ErrorCodeLinkHostNotSupported     ErrorCode = "LINK_HOST_NOT_SUPPORTED"
+	ErrorCodeLinkDown                 ErrorCode = "LINK_DOWN"
+	ErrorCodeLinkPassProtected        ErrorCode = "LINK_PASS_PROTECTED"
+	ErrorCodeLinkHostUnavailable      ErrorCode = "LINK_HOST_UNAVAILABLE"
+	ErrorCodeLinkTooManyDownloads     ErrorCode = "LINK_TOO_MANY_DOWNLOADS"
+	ErrorCodeLinkHostFull             ErrorCode = "LINK_HOST_FULL"
+	ErrorCodeLinkHostLimitReached     ErrorCode = "LINK_HOST_LIMIT_REACHED"
+	ErrorCodeLinkError                ErrorCode = "LINK_ERROR"
+	ErrorCodeLinkTemporaryUnavailable ErrorCode = "LINK_TEMPORARY_UNAVAILABLE"
+	ErrorCodeLinkNotSupported         ErrorCode = "LINK_NOT_SUPPORTED"
+
+	ErrorCodeRedirectorNotSupported ErrorCode = "REDIRECTOR_NOT_SUPPORTED"
+	ErrorCodeRedirectorError        ErrorCode = "REDIRECTOR_ERROR"
+	ErrorCodeStreamInvalidGenID     ErrorCode = "STREAM_INVALID_GEN_ID"
+	ErrorCodeStreamInvalidStreamID  ErrorCode = "STREAM_INVALID_STREAM_ID"
+	ErrorCodeDelayedInvalidID       ErrorCode = "DELAYED_INVALID_ID"
+
+	ErrorCodeFreeTrialLimitReached ErrorCode = "FREE_TRIAL_LIMIT_REACHED"
+	ErrorCodeMustBePremium         ErrorCode = "MUST_BE_PREMIUM"
+
+	ErrorCodeMagnetInvalidId        ErrorCode = "MAGNET_INVALID_ID"
+	ErrorCodeMagnetInvalidURI       ErrorCode = "MAGNET_INVALID_URI"
+	ErrorCodeMagnetInvalidFile      ErrorCode = "MAGNET_INVALID_FILE"
+	ErrorCodeMagnetFileUploadFailed ErrorCode = "MAGNET_FILE_UPLOAD_FAILED"
+	ErrorCodeMagnetNoURI            ErrorCode = "MAGNET_NO_URI"
+	ErrorCodeMagnetProcessing       ErrorCode = "MAGNET_PROCESSING" // for RestartMagnet
+	ErrorCodeMagnetTooManyActive    ErrorCode = "MAGNET_TOO_MANY_ACTIVE"
+	ErrorCodeMagnetTooMany          ErrorCode = "MAGNET_TOO_MANY"
+	ErrorCodeMagnetMustBePremium    ErrorCode = "MAGNET_MUST_BE_PREMIUM"
+	ErrorCodeMagnetTooLarge         ErrorCode = "MAGNET_TOO_LARGE"
+	ErrorCodeMagnetUploadFailed     ErrorCode = "MAGNET_UPLOAD_FAILED"
+	ErrorCodeMagnetInternalError    ErrorCode = "MAGNET_INTERNAL_ERROR"
+	ErrorCodeMagnetCantBootstrap    ErrorCode = "MAGNET_CANT_BOOTSTRAP"
+	ErrorCodeMagnetTooBig           ErrorCode = "MAGNET_MAGNET_TOO_BIG"
+	ErrorCodeMagnetTookTooLong      ErrorCode = "MAGNET_TOOK_TOO_LONG"
+	ErrorCodeMagnetLinksRemoved     ErrorCode = "MAGNET_LINKS_REMOVED"
+	ErrorCodeMagnetProcessingFailed ErrorCode = "MAGNET_PROCESSING_FAILED"
+	ErrorCodeMagnetNoServer         ErrorCode = "MAGNET_NO_SERVER"
+
+	ErrorCodePinAlreadyAuthed ErrorCode = "PIN_ALREADY_AUTHED"
+	ErrorCodePinExpired       ErrorCode = "PIN_EXPIRED"
+	ErrorCodePinInvalid       ErrorCode = "PIN_INVALID"
+
+	ErrorCodeUserLinkMissing ErrorCode = "USER_LINK_MISSING"
+	ErrorCodeUserLinkInvalid ErrorCode = "USER_LINK_INVALID"
+
+	ErrorCodeMissingNotifEndpoint ErrorCode = "MISSING_NOTIF_ENDPOINT"
+
+	ErrorCodeVoucherDurationInvalid ErrorCode = "VOUCHER_DURATION_INVALID"
+	ErrorCodeVoucherNbInvalid       ErrorCode = "VOUCHER_NB_INVALID"
+	ErrorCodeNoMoreVoucher          ErrorCode = "NO_MORE_VOUCHER"
+
+	ErrorCodeInsufficientBalance ErrorCode = "INSUFFICIENT_BALANCE"
+	ErrorCodeDownloadFailed      ErrorCode = "DOWNLOAD_FAILED"
+	ErrorCodeAccountInvalid      ErrorCode = "ACCOUNT_INVALID"
+	ErrorCodeNoJSONParam         ErrorCode = "NO_JSON_PARAM"
+	ErrorCodeJSONInvalid         ErrorCode = "JSON_INVALID"
+
+	ErrorCodeFreedaysInvalidCountry  ErrorCode = "FREEDAYS_INVALID_COUNTRY"
+	ErrorCodeFreedaysInvalidPhone    ErrorCode = "FREEDAYS_INVALID_PHONE"
+	ErrorCodeFreedaysInvalidProvider ErrorCode = "FREEDAYS_INVALID_PROVIDER"
 )
-
-var StatusCodeByErrorCode = map[ErrorCode]int{
-	ErrorCodeAuthMissingAgent:  http.StatusBadRequest,
-	ErrorCodeAuthMissingAPIKey: http.StatusUnauthorized,
-	ErrorCodeAuthBadAPIKey:     http.StatusUnauthorized,
-	ErrorCodeAuthBlocked:       http.StatusForbidden,
-	ErrorCodeAuthBanned:        http.StatusForbidden,
-}
-
-type MagnetErrorCode = core.ErrorCode
-
-const (
-	MagnetErrorCodeNoURI         MagnetErrorCode = "MAGNET_NO_URI"
-	MagnetErrorCodeInvalidId     MagnetErrorCode = "MAGNET_INVALID_ID"
-	MagnetErrorCodeInvalidURI    MagnetErrorCode = "MAGNET_INVALID_URI"
-	MagnetErrorCodeMustBePremium MagnetErrorCode = "MAGNET_MUST_BE_PREMIUM"
-	MagnetErrorCodeNoServer      MagnetErrorCode = "MAGNET_NO_SERVER"
-	MagnetErrorCodeTooManyActive MagnetErrorCode = "MAGNET_TOO_MANY_ACTIVE"
-	MagnetErrorCodeProcessing    MagnetErrorCode = "MAGNET_PROCESSING" // for RestartMagnet
-)
-
-var StatusCodeByMagnetErrorCode = map[MagnetErrorCode]int{
-	MagnetErrorCodeNoURI:         http.StatusBadRequest,
-	MagnetErrorCodeInvalidId:     http.StatusBadRequest,
-	MagnetErrorCodeInvalidURI:    http.StatusBadRequest,
-	MagnetErrorCodeMustBePremium: http.StatusPaymentRequired,
-	MagnetErrorCodeNoServer:      http.StatusUnprocessableEntity,
-	MagnetErrorCodeTooManyActive: http.StatusUnprocessableEntity,
-}
-
-type LinkErrorCode = core.ErrorCode
-
-const (
-	LinkErrorCodeHostNotSupported     LinkErrorCode = "LINK_HOST_NOT_SUPPORTED"
-	LinkErrorCodeDown                 LinkErrorCode = "LINK_DOWN"
-	LinkErrorCodeHostUnavailable      LinkErrorCode = "LINK_HOST_UNAVAILABLE"
-	LinkErrorCodeTooManyDownloads     LinkErrorCode = "LINK_TOO_MANY_DOWNLOADS"
-	LinkErrorCodeHostFull             LinkErrorCode = "LINK_HOST_FULL"
-	LinkErrorCodeHostLimitReached     LinkErrorCode = "LINK_HOST_LIMIT_REACHED"
-	LinkErrorCodePassProtected        LinkErrorCode = "LINK_PASS_PROTECTED"
-	LinkErrorCodeError                LinkErrorCode = "LINK_ERROR"
-	LinkErrorCodeNotSupported         LinkErrorCode = "LINK_NOT_SUPPORTED"
-	LinkErrorCodeTemporaryUnavailable LinkErrorCode = "LINK_TEMPORARY_UNAVAILABLE"
-	MustBePremium                     LinkErrorCode = "MUST_BE_PREMIUM"
-	FreeTrialLimitReached             LinkErrorCode = "FREE_TRIAL_LIMIT_REACHED"
-	NoServer                          LinkErrorCode = "NO_SERVER"
-)
-
-var StatusCodeByLinkErrorCode = map[LinkErrorCode]int{
-	LinkErrorCodeHostNotSupported:     http.StatusNotImplemented,
-	LinkErrorCodeDown:                 http.StatusServiceUnavailable,
-	LinkErrorCodeHostUnavailable:      http.StatusServiceUnavailable,
-	LinkErrorCodeTooManyDownloads:     http.StatusTooManyRequests,
-	LinkErrorCodeHostFull:             http.StatusUnprocessableEntity,
-	LinkErrorCodeHostLimitReached:     http.StatusUnprocessableEntity,
-	LinkErrorCodePassProtected:        http.StatusForbidden,
-	LinkErrorCodeError:                http.StatusInternalServerError,
-	LinkErrorCodeNotSupported:         http.StatusNotImplemented,
-	LinkErrorCodeTemporaryUnavailable: http.StatusServiceUnavailable,
-	MustBePremium:                     http.StatusPaymentRequired,
-	FreeTrialLimitReached:             http.StatusPaymentRequired,
-	NoServer:                          http.StatusServiceUnavailable,
-}
 
 var errorCodeByErrorCode = map[ErrorCode]core.ErrorCode{
-	ErrorCodeAuthMissingAgent:  core.ErrorCodeBadRequest,
-	ErrorCodeAuthBadAgent:      core.ErrorCodeBadRequest,
+	ErrorCodeGeneric:     core.ErrorCodeUnknown,
+	ErrorCode404:         core.ErrorCodeNotFound,
+	ErrorCodeMaintenance: core.ErrorCodeServiceUnavailable,
+
 	ErrorCodeAuthMissingAPIKey: core.ErrorCodeUnauthorized,
 	ErrorCodeAuthBadAPIKey:     core.ErrorCodeUnauthorized,
 	ErrorCodeAuthBlocked:       core.ErrorCodeForbidden,
 	ErrorCodeAuthBanned:        core.ErrorCodeForbidden,
 
-	MagnetErrorCodeNoURI:         core.ErrorCodeStoreMagnetInvalid,
-	MagnetErrorCodeInvalidId:     core.ErrorCodeStoreMagnetInvalid,
-	MagnetErrorCodeInvalidURI:    core.ErrorCodeStoreMagnetInvalid,
-	MagnetErrorCodeMustBePremium: core.ErrorCodePaymentRequired,
-	MagnetErrorCodeNoServer:      core.ErrorCodeForbidden,
-	MagnetErrorCodeTooManyActive: core.ErrorCodeStoreLimitExceeded,
-	MagnetErrorCodeProcessing:    core.ErrorCodeConflict,
+	ErrorCodeAlreadySent: core.ErrorCodeUnknown,
+	ErrorCodeNoServer:    core.ErrorCodeForbidden,
 
-	LinkErrorCodeHostNotSupported:     core.ErrorCodeNotImplemented,
-	LinkErrorCodeDown:                 core.ErrorCodeServiceUnavailable,
-	LinkErrorCodeHostUnavailable:      core.ErrorCodeServiceUnavailable,
-	LinkErrorCodeTooManyDownloads:     core.ErrorCodeStoreLimitExceeded,
-	LinkErrorCodeHostFull:             core.ErrorCodeStoreLimitExceeded,
-	LinkErrorCodeHostLimitReached:     core.ErrorCodeStoreLimitExceeded,
-	LinkErrorCodePassProtected:        core.ErrorCodeForbidden,
-	LinkErrorCodeError:                core.ErrorCodeInternalServerError,
-	LinkErrorCodeNotSupported:         core.ErrorCodeNotImplemented,
-	LinkErrorCodeTemporaryUnavailable: core.ErrorCodeServiceUnavailable,
-	MustBePremium:                     core.ErrorCodePaymentRequired,
-	FreeTrialLimitReached:             core.ErrorCodeStoreLimitExceeded,
-	NoServer:                          core.ErrorCodeServiceUnavailable,
+	ErrorCodeLinkIsMissing:            core.ErrorCodeUnknown,
+	ErrorCodeBadLink:                  core.ErrorCodeBadRequest,
+	ErrorCodeLinkHostNotSupported:     core.ErrorCodeNotImplemented,
+	ErrorCodeLinkDown:                 core.ErrorCodeServiceUnavailable,
+	ErrorCodeLinkPassProtected:        core.ErrorCodeForbidden,
+	ErrorCodeLinkHostUnavailable:      core.ErrorCodeServiceUnavailable,
+	ErrorCodeLinkTooManyDownloads:     core.ErrorCodeStoreLimitExceeded,
+	ErrorCodeLinkHostFull:             core.ErrorCodeStoreLimitExceeded,
+	ErrorCodeLinkHostLimitReached:     core.ErrorCodeStoreLimitExceeded,
+	ErrorCodeLinkError:                core.ErrorCodeInternalServerError,
+	ErrorCodeLinkTemporaryUnavailable: core.ErrorCodeServiceUnavailable,
+	ErrorCodeLinkNotSupported:         core.ErrorCodeNotImplemented,
+
+	ErrorCodeRedirectorNotSupported: core.ErrorCodeNotImplemented,
+	ErrorCodeRedirectorError:        core.ErrorCodeInternalServerError,
+	ErrorCodeStreamInvalidGenID:     core.ErrorCodeBadRequest,
+	ErrorCodeStreamInvalidStreamID:  core.ErrorCodeBadRequest,
+	ErrorCodeDelayedInvalidID:       core.ErrorCodeBadRequest,
+
+	ErrorCodeFreeTrialLimitReached: core.ErrorCodeStoreLimitExceeded,
+	ErrorCodeMustBePremium:         core.ErrorCodePaymentRequired,
+
+	ErrorCodeMagnetInvalidId:        core.ErrorCodeStoreMagnetInvalid,
+	ErrorCodeMagnetInvalidURI:       core.ErrorCodeStoreMagnetInvalid,
+	ErrorCodeMagnetInvalidFile:      core.ErrorCodeStoreMagnetInvalid,
+	ErrorCodeMagnetFileUploadFailed: core.ErrorCodeInternalServerError,
+	ErrorCodeMagnetNoURI:            core.ErrorCodeStoreMagnetInvalid,
+	ErrorCodeMagnetProcessing:       core.ErrorCodeConflict,
+	ErrorCodeMagnetTooManyActive:    core.ErrorCodeStoreLimitExceeded,
+	ErrorCodeMagnetTooMany:          core.ErrorCodeStoreLimitExceeded,
+	ErrorCodeMagnetMustBePremium:    core.ErrorCodePaymentRequired,
+	ErrorCodeMagnetTooLarge:         core.ErrorCodeBadRequest,
+	ErrorCodeMagnetUploadFailed:     core.ErrorCodeInternalServerError,
+	ErrorCodeMagnetInternalError:    core.ErrorCodeInternalServerError,
+	ErrorCodeMagnetCantBootstrap:    core.ErrorCodeUnprocessableEntity,
+	ErrorCodeMagnetTooBig:           core.ErrorCodeBadRequest,
+	ErrorCodeMagnetTookTooLong:      core.ErrorCodeUnprocessableEntity,
+	ErrorCodeMagnetLinksRemoved:     core.ErrorCodeNotFound,
+	ErrorCodeMagnetProcessingFailed: core.ErrorCodeUnprocessableEntity,
+	ErrorCodeMagnetNoServer:         core.ErrorCodeForbidden,
+
+	ErrorCodePinAlreadyAuthed: core.ErrorCodeUnknown,
+	ErrorCodePinExpired:       core.ErrorCodeBadRequest,
+	ErrorCodePinInvalid:       core.ErrorCodeBadRequest,
+
+	ErrorCodeUserLinkMissing: core.ErrorCodeBadRequest,
+	ErrorCodeUserLinkInvalid: core.ErrorCodeBadRequest,
+
+	ErrorCodeMissingNotifEndpoint: core.ErrorCodeBadRequest,
+
+	ErrorCodeVoucherDurationInvalid: core.ErrorCodeBadRequest,
+	ErrorCodeVoucherNbInvalid:       core.ErrorCodeBadRequest,
+	ErrorCodeNoMoreVoucher:          core.ErrorCodeBadRequest,
+
+	ErrorCodeInsufficientBalance: core.ErrorCodePaymentRequired,
+	ErrorCodeDownloadFailed:      core.ErrorCodeInternalServerError,
+	ErrorCodeAccountInvalid:      core.ErrorCodeForbidden,
+	ErrorCodeNoJSONParam:         core.ErrorCodeBadRequest,
+	ErrorCodeJSONInvalid:         core.ErrorCodeBadRequest,
+
+	ErrorCodeFreedaysInvalidCountry:  core.ErrorCodeBadRequest,
+	ErrorCodeFreedaysInvalidPhone:    core.ErrorCodeBadRequest,
+	ErrorCodeFreedaysInvalidProvider: core.ErrorCodeBadRequest,
 }
 
 func TranslateErrorCode(errorCode ErrorCode) core.ErrorCode {
@@ -126,16 +177,10 @@ func UpstreamErrorWithCause(cause error) *core.UpstreamError {
 	if rerr, ok := cause.(*ResponseError); ok {
 		err.Msg = rerr.Message
 		err.Code = TranslateErrorCode(rerr.Code)
-		if sc := StatusCodeByErrorCode[rerr.Code]; sc != 0 {
-			err.StatusCode = sc
-		}
 		err.UpstreamCause = rerr
 	} else if merr, ok := cause.(*MagnetError); ok {
 		err.Msg = merr.Message
 		err.Code = TranslateErrorCode(merr.Code)
-		if sc := StatusCodeByMagnetErrorCode[merr.Code]; sc != 0 {
-			err.StatusCode = sc
-		}
 		err.UpstreamCause = merr
 	} else {
 		err.Cause = cause
