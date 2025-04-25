@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/charleeislegend/stremthru/compare/sdk-py-0.3.0...sdk-py-0.4.0) (2025-04-25)
+
+
+### Features
+
+* **shared/server:** respond for OPTIONS method in CORS middleware ([0930fee](https://github.com/charleeislegend/stremthru/commit/0930feee24b3e6521dd4b58facbe66b7363e73d8))
+
 ## [0.3.0](https://github.com/MunifTanjim/stremthru/compare/sdk-py-0.2.0...sdk-py-0.3.0) (2024-12-31)
 
 
