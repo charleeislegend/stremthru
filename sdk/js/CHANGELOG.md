@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/charleeislegend/stremthru/compare/sdk-js-0.7.0...sdk-js-0.8.0) (2025-04-25)
+
+
+### Features
+
+* **shared/server:** respond for OPTIONS method in CORS middleware ([0930fee](https://github.com/charleeislegend/stremthru/commit/0930feee24b3e6521dd4b58facbe66b7363e73d8))
+
 ## [0.7.0](https://github.com/MunifTanjim/stremthru/compare/sdk-js-0.6.0...sdk-js-0.7.0) (2024-12-31)
 
 
