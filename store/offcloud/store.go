@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/MunifTanjim/stremthru/core"
+	"github.com/MunifTanjim/stremthru/internal/cache"
+	"github.com/MunifTanjim/stremthru/internal/request"
 	"github.com/MunifTanjim/stremthru/store"
 )
 
@@ -16,8 +18,9 @@ type StoreClientConfig struct {
 }
 
 type StoreClient struct {
-	Name   store.StoreName
-	client *APIClient
+	Name             store.StoreName
+	client           *APIClient
+	listMagnetsCache cache.Cache[[]store.ListMagnetsDataItem]
 }
 
 func NewStoreClient(config *StoreClientConfig) *StoreClient {
@@ -28,7 +31,16 @@ func NewStoreClient(config *StoreClientConfig) *StoreClient {
 	})
 	c.Name = store.StoreNameOffcloud
 
+	c.listMagnetsCache = cache.NewCache[[]store.ListMagnetsDataItem](&cache.CacheConfig{
+		Name:     "store:offcloud:listMagnets",
+		Lifetime: 5 * time.Minute,
+	})
+
 	return c
+}
+
+func (c *StoreClient) getCacheKey(params request.Context, key string) string {
+	return params.GetAPIKey(c.client.apiKey) + ":" + key
 }
 
 func (s *StoreClient) GetName() store.StoreName {
@@ -133,6 +145,8 @@ func (s *StoreClient) AddMagnet(params *store.AddMagnetParams) (*store.AddMagnet
 		data.AddedAt = res.Data.CreatedOn
 
 		server = res.Data.GetServer()
+
+		s.listMagnetsCache.Remove(s.getCacheKey(params, ""))
 	}
 
 	if data.Status == store.MagnetStatusDownloaded {
@@ -272,31 +286,65 @@ func (s *StoreClient) findCloudDownload(ctx Ctx, hash string) (*ListCloudDownloa
 }
 
 func (s *StoreClient) ListMagnets(params *store.ListMagnetsParams) (*store.ListMagnetsData, error) {
-	res, err := s.client.ListCloudDownloads(&ListCloudDownloadsParams{
-		Ctx: params.Ctx,
-	})
-	if err != nil {
-		return nil, err
+	lm := []store.ListMagnetsDataItem{}
+
+	if !s.listMagnetsCache.Get(s.getCacheKey(params, ""), &lm) {
+		items := []store.ListMagnetsDataItem{}
+		page := 0
+		pageSize := -1
+
+		for {
+			res, err := s.client.ListCloudDownloads(&ListCloudDownloadsParams{
+				Ctx:  params.Ctx,
+				Page: page,
+			})
+			if err != nil {
+				return nil, err
+			}
+			for _, m := range res.Data.History {
+				magnet, err := core.ParseMagnetLink(m.OriginalLink)
+				if err != nil {
+					continue
+				}
+				item := store.ListMagnetsDataItem{
+					Id:      m.RequestId,
+					Hash:    magnet.Hash,
+					Name:    m.FileName,
+					Size:    m.FileSize,
+					Status:  getMagnetStatus(m.Status),
+					AddedAt: m.CreatedOn,
+				}
+				items = append(items, item)
+			}
+
+			if res.Data.IsEnd {
+				break
+			}
+			if pageSize == -1 {
+				pageSize = len(res.Data.History)
+				log.Info("found page size", "pageSize", pageSize)
+			}
+			if len(items) >= 2000 {
+				log.Warn("list magnet capped")
+				break
+			}
+			page += 1
+		}
+
+		lm = items
+		s.listMagnetsCache.Add(s.getCacheKey(params, ""), items)
 	}
+
+	totalItems := len(lm)
+	startIdx := min(params.Offset, totalItems)
+	endIdx := min(startIdx+params.Limit, totalItems)
+	items := lm[startIdx:endIdx]
+
 	data := &store.ListMagnetsData{
-		Items:      []store.ListMagnetsDataItem{},
-		TotalItems: len(res.Data.History),
+		Items:      items,
+		TotalItems: totalItems,
 	}
-	for _, m := range res.Data.History {
-		magnet, err := core.ParseMagnetLink(m.OriginalLink)
-		if err != nil {
-			continue
-		}
-		item := store.ListMagnetsDataItem{
-			Id:      m.RequestId,
-			Hash:    magnet.Hash,
-			Name:    m.FileName,
-			Size:    m.FileSize,
-			Status:  getMagnetStatus(m.Status),
-			AddedAt: m.CreatedOn,
-		}
-		data.Items = append(data.Items, item)
-	}
+
 	return data, nil
 }
 
@@ -308,6 +356,9 @@ func (s *StoreClient) RemoveMagnet(params *store.RemoveMagnetParams) (*store.Rem
 	if err != nil {
 		return nil, err
 	}
+
+	s.listMagnetsCache.Remove(s.getCacheKey(params, ""))
+
 	data := &store.RemoveMagnetData{Id: params.Id}
 	return data, nil
 }
